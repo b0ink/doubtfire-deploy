@@ -81,4 +81,4 @@
   "postStartCommand": "/workspace/.devcontainer/post_start.sh",
 
   "overrideCommand": true
-}
+}s
