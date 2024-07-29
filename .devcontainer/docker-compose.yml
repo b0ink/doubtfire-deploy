@@ -14,7 +14,7 @@ services:
       - formatif_student-work_compose:/student-work
       - ws_node_modules:/workspace/node_modules
       - web_node_modules:/workspace/doubtfire-web/node_modules
-      - formatif_db_compose:/var/lib/mysql
+      # - formatif_db_compose:/var/lib/mysql
       - formatif_gems_compose:/home/vscode/.gems
     ports:
       - "9876:9876"
@@ -48,17 +48,17 @@ services:
 
   # Database server - could be external to docker
   doubtfire-db:
-    image: mariadb:10
-    platform: linux/amd64
     build:
       context: ../
-      dockerfile: dev.Dockerfile
+      dockerfile: dev.db.Dockerfile
+    # platform: linux/amd64 # mac M1/M2 hot fix, comment on for windows
     depends_on:
       - formatif-dev-container
       - proxy
     volumes:
-      - ./:/workspace/.devcontainer/
+      - ./dev-mariadb.cnf:/etc/mysql/mariadb.conf.d/dev-mariadb.cnf
       - mysql_db:/var/lib/mysql
+      - formatif_tmp_compose:/workspace/tmp
     env_file:
       - ./devcontainer.env
     networks:

@@ -32,13 +32,13 @@ RUN apt-get update \
     libmagic-dev \
     libmagickwand-dev \
     ### Installing MariaDB development libraries
-    libmariadb-dev \
+    # libmariadb-dev \
     python3-pygments \
     tzdata \
     wget \
     libc6-dev \
     ### Installing MariaDB server
-    mariadb-server \
+    # mariadb-server \
     gosu \
     ### Installing Redis
     redis \
