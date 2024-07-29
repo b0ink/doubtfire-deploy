@@ -5,9 +5,13 @@ ENV DEBIAN_FRONTEND noninteractive
 
 RUN apt-get update \
   && apt-get install -y apt-transport-https ca-certificates curl gnupg2 software-properties-common \
+  ### Adding Docker GPG key for apt
   && curl -fsSL https://download.docker.com/linux/debian/gpg | apt-key add - \
+  ### Adding Docker repository
   && add-apt-repository "deb [arch=amd64,arm64] https://download.docker.com/linux/debian $(lsb_release -cs) stable" \
+  ### Adding Redis GPG key for apt
   && curl -fsSL https://packages.redis.io/gpg | gpg --dearmor -o /usr/share/keyrings/redis-archive-keyring.gpg \
+  ### Adding Redis repository
   && echo "deb [signed-by=/usr/share/keyrings/redis-archive-keyring.gpg] https://packages.redis.io/deb $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/redis.list
 
 ENV USER='vscode'
@@ -27,17 +31,23 @@ RUN apt-get update \
     imagemagick \
     libmagic-dev \
     libmagickwand-dev \
+    ### Installing MariaDB development libraries
     libmariadb-dev \
     python3-pygments \
     tzdata \
     wget \
     libc6-dev \
+    ### Installing MariaDB server
     mariadb-server \
     gosu \
+    ### Installing Redis
     redis \
     inkscape \
+    ### Installing Docker CE
     docker-ce \
+    ### Installing Docker CLI
     docker-ce-cli \
+    ### Installing containerd
     containerd.io \
   && apt-get clean \
   && ARCH= && dpkgArch="$(dpkg --print-architecture)" \
@@ -78,9 +88,11 @@ RUN apt-get update \
   && node --version \
   && npm --version \
   && gem install bundler -v '~> 2.4.5' \
+  ### Running TeX Live install script
   && /workspace/doubtfire-api/.ci-setup/texlive-install.sh \
   && rm -rf /workspace/doubtfire-api/.ci-setup/texlive-install.sh \
   && rm -rf /install-tl-* \
+  ### Creating directory for MariaDB
   && mkdir /run/mysqld
 
 USER "${USER}"
