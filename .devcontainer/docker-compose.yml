@@ -11,11 +11,12 @@ services:
       # mounts are relative to the first file in the list, which is a level up.
       - ..:/workspace:cached
       - formatif_tmp_compose:/workspace/tmp
-      - formatif_student-work_compose:/student-work
+      - ../data/student-work:/student-work
       - ws_node_modules:/workspace/node_modules
       - web_node_modules:/workspace/doubtfire-web/node_modules
       - formatif_db_compose:/var/lib/mysql
       - formatif_gems_compose:/home/vscode/.gems
+      - /var/run/docker.sock:/var/run/docker.sock
     ports:
       - "9876:9876"
       - "4200:4200"
@@ -24,6 +25,13 @@ services:
     command: /bin/sh -c "while sleep 5000; do :; done"
     env_file:
       - ./devcontainer.env
+    # healthcheck:
+    #     test: [ "CMD", "healthcheck.sh", "--connect", "--innodb_initialized" ]
+    #     start_period: 1m
+    #     start_interval: 10s
+    #     interval: 1m
+    #     timeout: 5s
+    #     retries: 3
 
   # This is the proxy which receives all http requests and forwards to relevant servers.
   proxy:
@@ -56,6 +64,21 @@ services:
     env_file:
       - ./devcontainer.env
 
+  ## docker-compose run
+  ## --rm makes it close
+  ## can do this for latex too
+  jplag:
+    container_name: jplag
+    build:
+      context: ../jplag
+      dockerfile: jplag.Dockerfile
+    volumes:
+      - jplag_data:/jplag
+      - ../data/student-work:/student-work
+    env_file:
+      - ./devcontainer.env
+    network_mode: "host"
+
 volumes:
   ws_node_modules:
   web_node_modules:
@@ -67,3 +90,4 @@ volumes:
   doubtfire_logs: {}
   mysql_db: {}
   student_work: {}
+  jplag_data:
