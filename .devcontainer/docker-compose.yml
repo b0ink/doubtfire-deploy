@@ -38,7 +38,9 @@ services:
       - jplag_data:/jplag
       - jplag_results:/jplag/results
       - ../doubtfire-api/tmp/jplag:/tmp/jplag
-    command: /bin/sh -c "sleep infinity"
+    command: /bin/sh -c "while sleep 5000; do :; done"
+    depends_on:
+      - formatif-dev-container
     env_file:
       - ./devcontainer.env
 
@@ -59,20 +61,6 @@ services:
     env_file:
       - ./devcontainer.env
 
-  # Database server - could be external to docker
-  doubtfire-db:
-    image: mariadb:10
-    volumes:
-      - mysql_db:/var/lib/mysql
-
-  redis-sidekiq:
-    container_name: doubtfire-redis-sidekiq
-    image: redis:7.0
-    volumes:
-      - redis_sidekiq_data:/data
-    env_file:
-      - ./devcontainer.env
-
 volumes:
   ws_node_modules:
   web_node_modules:
@@ -80,7 +68,5 @@ volumes:
   student-work: {}
   formatif_db_compose:
   formatif_gems_compose:
-  redis_sidekiq_data:
-  mysql_db: {}
   jplag_data:
   jplag_results:
