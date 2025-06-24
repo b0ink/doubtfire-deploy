@@ -6,6 +6,7 @@ networks:
     internal: true
 
 services:
+
   formatif-dev-container:
     container_name: 1-formatif-dev-container
     image: lmsdoubtfire/formatif-devcontainer:10.0.0-5
@@ -17,7 +18,8 @@ services:
       # mounts are relative to the first file in the list, which is a level up.
       - ..:/workspace:cached
       - formatif_tmp_compose:/workspace/tmp
-      - formatif_student-work_compose:/student-work
+      - student-work:/student-work
+      - jplag_results:/jplag_results
       - ws_node_modules:/workspace/node_modules
       - web_node_modules:/workspace/doubtfire-web/node_modules
       - formatif_gems_compose:/home/vscode/.gems
@@ -74,11 +76,48 @@ services:
       - formatif-dev-container
     command: /bin/sh -c "sleep infinity"
 
+
+  # JPlag
+  jplag:
+    container_name: jplag
+    build:
+      context: ../jplag
+      dockerfile: jplag.Dockerfile
+    volumes:
+      - student-work:/student-work
+      - jplag_data:/jplag
+      - jplag_results:/jplag/results
+      - ../doubtfire-api/tmp/jplag:/tmp/jplag
+    command: /bin/sh -c "while sleep 5000; do :; done"
+    depends_on:
+      - formatif-dev-container
+    env_file:
+      - ./devcontainer.env
+
+  # This is the proxy which receives all http requests and forwards to relevant servers.
+  proxy:
+    image: nginx:mainline-alpine
+    container_name: proxy
+    expose:
+      - 80:80
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - ./reverse-proxy-nginx.conf:/etc/nginx/nginx.conf
+      # - ./localhost.crt:/etc/nginx/cert.crt # replace with real certificate
+      # - ./localhost.key:/etc/nginx/key.key # replace with real key
+    restart: on-failure:2
+    env_file:
+      - ./devcontainer.env
+
 volumes:
   ws_node_modules:
   web_node_modules:
   formatif_tmp_compose:
-  formatif_student-work_compose:
+  student-work: {}
   formatif_db_compose:
   formatif_gems_compose:
   formatif_redis_sidekiq_data:
+  jplag_data:
+  jplag_results:
