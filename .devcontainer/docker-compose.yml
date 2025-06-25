@@ -18,8 +18,8 @@ services:
       # mounts are relative to the first file in the list, which is a level up.
       - ..:/workspace:cached
       - formatif_tmp_compose:/workspace/tmp
-      - student-work:/student-work
-      - jplag_results:/jplag_results
+      - formatif_student-work_compose:/student-work
+      - jplag_results:/jplag/results
       - ws_node_modules:/workspace/node_modules
       - web_node_modules:/workspace/doubtfire-web/node_modules
       - formatif_gems_compose:/home/vscode/.gems
@@ -84,11 +84,11 @@ services:
       context: ../jplag
       dockerfile: jplag.Dockerfile
     volumes:
-      - student-work:/student-work
+      - formatif_student-work_compose:/student-work
       - jplag_data:/jplag
       - jplag_results:/jplag/results
       - ../doubtfire-api/tmp/jplag:/tmp/jplag
-    command: /bin/sh -c "while sleep 5000; do :; done"
+    command: /bin/sh -c "sleep infinity"
     depends_on:
       - formatif-dev-container
     env_file:
@@ -111,11 +111,13 @@ services:
     env_file:
       - ./devcontainer.env
 
+
+
 volumes:
   ws_node_modules:
   web_node_modules:
   formatif_tmp_compose:
-  student-work: {}
+  formatif_student-work_compose:
   formatif_db_compose:
   formatif_gems_compose:
   formatif_redis_sidekiq_data:
